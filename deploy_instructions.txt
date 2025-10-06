@@ -1,0 +1,10 @@
+Deploy to Render (short steps):
+1. Create GitHub repo and push the folder contents.
+2. Sign up / login to render.com and connect GitHub.
+3. New -> Background Worker -> choose the repo and branch.
+4. Set Environment Variables in Render dashboard:
+   - TELEGRAM_TOKEN (BotFather token)
+   - LEAKLOOKUP_KEY (your Leak-Lookup API key)
+   - LEAKLOOKUP_BASE (optional; default included)
+   - LEAKLOOKUP_PARAM_NAME (optional; default 'key')
+5. Start deploy. After successful deploy, open Telegram and interact with the bot.
