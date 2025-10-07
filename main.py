@@ -31,19 +31,50 @@ HEADERS = {"Accept":"application/json"}
 PARAM_KEY_NAME = os.getenv("LEAKLOOKUP_PARAM_NAME", "key")  # sometimes 'key' or 'api_key'
 
 # helper: call leak-lookup API
+# --- leak-lookup query helper (replace the old function with this) ---
+LEAKLOOKUP_KEY = os.getenv("LEAKLOOKUP_KEY")
+
 def leaklookup_query(email):
-    params = {PARAM_KEY_NAME: LEAKLOOKUP_KEY, "type": "email", "query": email, "limit": 100}
+    """
+    Query Leak-Lookup API and return (data, error)
+    - returns (data_dict, None) on success
+    - returns (None, error_message) on failure
+    """
+    url = "https://leak-lookup.com/api/search"
+    # if your provider expects a different param name, change "key" -> "api_key"
+    params = {
+        "key": LEAKLOOKUP_KEY,
+        "type": "email",
+        "query": email
+    }
+
+    if not LEAKLOOKUP_KEY:
+        return None, "No API key set (LEAKLOOKUP_KEY missing)"
+
     try:
-        r = requests.get(LEAKLOOKUP_BASE, params=params, headers=HEADERS, timeout=15)
+        r = requests.get(url, params=params, timeout=15)
     except Exception as e:
-        logger.exception("LeakLookup HTTP error")
-        return None, f"HTTP error: {e}"
+        return None, f"Request failed: {e}"
+
+    # Non-200 HTTP status
     if r.status_code != 200:
-        return None, f"API error {r.status_code}: {r.text[:300]}"
+        # Return first part of body so we don't flood things
+        return None, f"HTTP {r.status_code}: {r.text[:400]}"
+
+    # Parse JSON safely
     try:
-        return r.json(), None
+        data = r.json()
     except Exception as e:
-        return None, f"Failed to parse JSON: {e}"
+        return None, f"Invalid JSON response: {e} - {r.text[:300]}"
+
+    # API-level error field (if provider uses it)
+    if isinstance(data, dict) and data.get("error"):
+        msg = data.get("message", "Unknown API error")
+        return None, f"API error: {msg}"
+
+    # Success — return parsed JSON
+    return data, None
+# --- end leak-lookup helper ---
 
 # friendly formatting helpers
 def fmt_breach_item(item):
