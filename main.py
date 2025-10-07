@@ -6,7 +6,8 @@ main.py - Leak-Lookup Telegram bot (Advanced)
 Note: Fill .env locally with your tokens; DO NOT commit secrets to a public repo.
 """
 import os, time, requests, logging, json, re
-from telegram import ParseMode, Update
+from telegram.constants import ParseMode
+from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from dotenv import load_dotenv
 
