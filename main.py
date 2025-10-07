@@ -133,3 +133,27 @@ def main():
 
 if __name__ == '__main__':
     main()
+import threading
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+# Run flask in a separate thread
+threading.Thread(target=run_flask).start()
+
+# Your bot code
+import telebot
+bot = telebot.TeleBot("YOUR_TOKEN")
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.send_message(message.chat.id, "Bot is working!")
+
+bot.polling()
