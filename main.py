@@ -99,8 +99,23 @@ async def handle_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("That doesn't look like an email address. Send like: user@example.com")
         return
     email = txt.lower()
-    await update.message.reply_text(f"🔎 Checking leaks for: `{email}` ...", parse_mode=ParseMode.MARKDOWN)
-    resp, err = leaklookup_query(email)
+
+# --- TEST MODE SNIPPET: remove after testing ---
+if "breach-test" in email:
+    await update.message.reply_text(
+        f"⚠️ (SIMULATED) Leak report for `{email}`:\n• site: example-breach.com\n• date: 2020-01-01\n• data exposed: emails, passwords",
+        parse_mode=ParseMode.MARKDOWN
+    )
+    return
+# --- end test snippet ---
+
+
+await update.message.reply_text(f"🔍 Checking leaks for: {email} ...")
+await update.message.reply_text(f"🔍 Checking leaks for: {email} ...")
+resp, err = leaklookup_query(email)
+if err:
+    await update.message.reply_text(f"❌ API error: {err}")
+    return
     if err:
         await update.message.reply_text(f"❌ API error: {err}")
         return
